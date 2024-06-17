@@ -19,45 +19,46 @@ defineModule(sim, list(
   documentation = list("README.md", "fireSense.Rmd"), ## same file
   reqdPkgs = list("data.table", "ggplot2", "ggspatial", "raster", "terra"),
   parameters = rbind(
-    #defineParameter("paramName", "paramClass", default, min, max, "parameter description")),
-    defineParameter(".plotInitialTime", "numeric", default = NA,
-                    desc = "optional. When to start plotting."),
-    defineParameter(".plotInterval", "numeric", default = NA,
-                    desc = "optional. Interval between plot events."),
-    defineParameter(".runInitialTime", "numeric", default = start(sim),
-                    desc = "time to simulate initial fire"),
-    defineParameter(".runInterval", "numeric", default = 1,
-                    desc = paste("optional. Interval between two runs of this module,",
-                                 "expressed in units of simulation time. By default, 1 year.")),
-    defineParameter(".saveInitialTime", "numeric", default = NA,
-                    desc = "optional. When to start saving output to a file."),
-    defineParameter(".saveInterval", "numeric", default = NA,
-                    desc = "optional. Interval between save events."),
+    defineParameter("plotIgnitions", "logical", FALSE, NA, NA,
+                    "whether to plot ignitions, escapes, and burns"),
+    defineParameter(".plotInitialTime", "numeric", NA, NA, NA,
+                    "optional. When to start plotting."),
+    defineParameter(".plotInterval", "numeric", NA, NA, NA,
+                    "optional. Interval between plot events."),
+    defineParameter(".runInitialTime", "numeric", start(sim), NA, NA,
+                    "time to simulate initial fire"),
+    defineParameter(".runInterval", "numeric", NA, NA,
+                    paste("optional. Interval between two runs of this module,",
+                          "expressed in units of simulation time. By default, 1 year.")),
+    defineParameter(".saveInitialTime", "numeric", NA, NA, NA,
+                    "optional. When to start saving output to a file."),
+    defineParameter(".saveInterval", "numeric", NA, NA, NA,
+                    "optional. Interval between save events."),
     defineParameter("whichModulesToPrepare", "character",
                     default = c("fireSense_SpreadPredict", "fireSense_IgnitionPredict", "fireSense_EscapePredict"),
                     NA, NA,
-                    desc = paste("Which fireSense predict modules to prep? Defaults to all 3.",
-                                 "Must include fireSense_IgnitionPredict."))
+                    paste("Which fireSense predict modules to prep? Defaults to all 3.",
+                          "Must include `fireSense_IgnitionPredict`."))
   ),
   inputObjects = rbind(
     expectsInput("fireSense_IgnitionPredicted", "data.frame",
-                 desc = "A SpatRaster of ignition probabilities."),
+                 "A SpatRaster of ignition probabilities."),
     expectsInput("fireSense_EscapePredicted", "SpatRaster",
-                 desc = "A SpatRaster of escape probabilities."),
+                 "A SpatRaster of escape probabilities."),
     expectsInput("fireSense_SpreadPredicted", "SpatRaster",
-                 desc = "A SpatRaster of spread probabilities.")
+                 "A SpatRaster of spread probabilities.")
   ),
   outputObjects = rbind(
     createsOutput("burnDT", "data.table",
-                  desc = "Data table with pixel IDs of most recent burn."),
+                  "Data table with pixel IDs of most recent burn."),
     createsOutput("burnMap", "SpatRaster",
-                  desc = "A raster of cumulative burns"),
+                  "A raster of cumulative burns"),
     createsOutput("burnSummary", "data.table",
-                  desc = "Describes details of all burned pixels."),
+                  "Describes details of all burned pixels."),
     createsOutput("rstAnnualBurnID", "SpatRaster",
-                  desc = "annual raster whose values distinguish individual fires"),
+                  "annual raster whose values distinguish individual fires"),
     createsOutput("rstCurrentBurn", "SpatRaster",
-                  desc = "A binary raster with 1 values representing burned pixels.")
+                  "A binary raster with 1 values representing burned pixels.")
   )
 ))
 
@@ -210,9 +211,9 @@ burn <- function(sim) {
 
 plot <- function(sim) {
   if (P(sim)$plotIgnitions) {
-    #this plot treats escapes and ignitions as points, but burns as rasters
-    #it is impossible to show escapes as a raster, and burns do not plot well as points
-    #this requires some ggplot hacks
+    ## this plot treats escapes and ignitions as points, but burns as rasters
+    ## it is impossible to show escapes as a raster, and burns do not plot well as points
+    ## this requires some ggplot hacks
 
     flam <- as.data.frame(as(sim$flammableRTM, "SpatialPixelsDataFrame"))
     names(flam) <- c("value", "x", "y")
@@ -224,7 +225,7 @@ plot <- function(sim) {
     ignitions <- raster::xyFromCell(sim$flammableRTM, cell = mod$ignitions) %>%
       as.data.table(.)
 
-    #there should be an easier anti-join in data.table
+    ## there should be an easier anti-join in data.table
     both <- rbind(escapes, ignitions)
     both <- both[, .N, .(x, y)] #want only xy of points that did not escape
     ignitions <- both[N == 1, .(x, y)]
