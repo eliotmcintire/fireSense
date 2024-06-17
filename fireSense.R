@@ -27,7 +27,7 @@ defineModule(sim, list(
                     "optional. Interval between plot events."),
     defineParameter(".runInitialTime", "numeric", start(sim), NA, NA,
                     "time to simulate initial fire"),
-    defineParameter(".runInterval", "numeric", NA, NA,
+    defineParameter(".runInterval", "numeric", NA, NA, NA,
                     paste("optional. Interval between two runs of this module,",
                           "expressed in units of simulation time. By default, 1 year.")),
     defineParameter(".saveInitialTime", "numeric", NA, NA, NA,
