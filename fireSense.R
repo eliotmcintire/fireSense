@@ -41,7 +41,7 @@ defineModule(sim, list(
                           "Must include `fireSense_IgnitionPredict`."))
   ),
   inputObjects = rbind(
-    expectsInput("fireSense_IgnitionPredicted", "data.frame",
+    expectsInput("fireSense_IgnitionPredicted", "SpatRaster",
                  "A SpatRaster of ignition probabilities."),
     expectsInput("fireSense_EscapePredicted", "SpatRaster",
                  "A SpatRaster of escape probabilities."),
