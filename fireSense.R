@@ -12,12 +12,11 @@ defineModule(sim, list(
   ),
   childModules = character(),
   version = numeric_version("1.0.0"),
-  spatialExtent = raster::extent(rep(NA_real_, 4)),
   timeframe = as.POSIXlt(c(NA, NA)),
   timeunit = "year",
   citation = list("citation.bib"),
   documentation = list("README.md", "fireSense.Rmd"), ## same file
-  reqdPkgs = list("data.table", "ggplot2", "ggspatial", "raster", "terra"),
+  reqdPkgs = list("data.table", "ggplot2", "ggspatial", "terra"),
   parameters = rbind(
     defineParameter("plotIgnitions", "logical", FALSE, NA, NA,
                     "whether to plot ignitions, escapes, and burns"),
@@ -211,6 +210,7 @@ burn <- function(sim) {
 
 plot <- function(sim) {
   if (P(sim)$plotIgnitions) {
+    #TODO: add to plots
     ## this plot treats escapes and ignitions as points, but burns as rasters
     ## it is impossible to show escapes as a raster, and burns do not plot well as points
     ## this requires some ggplot hacks
